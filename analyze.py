@@ -11,3 +11,4 @@ matplotlib.pyplot.plot(frontLegSensorValues, label="Front Leg")
 
 matplotlib.pyplot.legend()
 matplotlib.pyplot.show()
+#add a gitignore file that contains the "data" folder
