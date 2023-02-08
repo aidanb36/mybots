@@ -22,6 +22,13 @@ for i in range(100):
     backLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("Link2")
     frontLegSensorValues[i] = pyrosim.Get_Touch_Sensor_Value_For_Link("Link0")
 
+    pyrosim.Set_Motor_For_Joint(
+        bodyIndex=robotId,
+        jointName="Link1_Link2",
+        controlMode=p.POSITION_CONTROL,
+        targetPosition=0.0,
+        maxForce=500)
+
 p.disconnect()
 numpy.save('data/backLegSensorValues.npy', backLegSensorValues)
 numpy.save('data/frontLegSensorValues.npy', frontLegSensorValues)
