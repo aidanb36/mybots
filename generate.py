@@ -1,55 +1,41 @@
 import pyrosim.pyrosim as pyrosim
 
+length = 1
+width = 1
+height = 1
 
-def Create_world():
+x = 0
+y = 0
+z = .5
+
+
+# for gridx in range(5):
+#     for gridy in range(5):
+#         for a in range(10):
+#             scale = pow(.9, a);
+#             pyrosim.Send_Cube(name="Box", pos=[gridx,gridy,z+a] , size=[scale * length, scale * width, scale * height])
+
+
+def Create_World():
     pyrosim.Start_SDF("world.sdf")
-    length = 1.0
-    width = 1.0
-    height = 1.0
-
-    x = 0
-    y = 0
-    z = height / 2
-
-    #pyrosim.Send_Cube(name="Box", pos=[x, y, z], size=[length, width, height])
-
+    pyrosim.Send_Cube(name="Box", pos=[1, 1, .5], size=[1, 1, 1])
     pyrosim.End()
+
 
 def Create_Robot():
     pyrosim.Start_URDF("body.urdf")
+    pyrosim.Send_Cube(name="Torso", pos=[1.5, 0, 1.5], size=[1, 1, 1])
 
-    length = 1
-    width = 1
-    height = 1
+    pyrosim.Send_Joint(name="Torso_BackLeg", parent="Torso", child="BackLeg", type="revolute", position=[1, 0, 1])
 
-    pyrosim.Send_Cube(name="Link0", pos=[0.5, 0.5, .5], size=[length, width, height])
-    pyrosim.Send_Joint(name="Link0_Link1", parent="Link0", child="Link1", type="revolute", position=[1.0, 0.5, 1.0])
-    pyrosim.Send_Cube(name="Link1", pos=[0.5, 0.0, 0.5], size=[length, width, height])
+    pyrosim.Send_Cube(name="BackLeg", pos=[-.5, 0, -.5], size=[1, 1, 1])
 
-    pyrosim.Send_Joint(name="Link1_Link2", parent="Link1", child="Link2", type="revolute", position=[1.0, 0.0, 0.0])
-    pyrosim.Send_Cube(name="Link2", pos=[0.5, 0.0, -0.5], size=[length, width, height])
+    pyrosim.Send_Joint(name="Torso_FrontLeg", parent="Torso", child="FrontLeg", type="revolute", position=[2, 0, 1])
 
+    pyrosim.Send_Cube(name="FrontLeg", pos=[.5, 0, -.5], size=[1, 1, 1])
 
     pyrosim.End()
 
 
-Create_world()
+Create_World()
 Create_Robot()
-# x = 0
-# y = 0
-# z = 0.5
-# length = 1
-# width = 1
-# height = 1
-# for x in range(5):
-#     for y in range(5):
-#         z=0
-#         length = 1
-#         width = 1
-#         height = 1
-#         for z in range(10):
-#             pyrosim.Send_Cube(name="Box", pos=[x, y, z+.5] , size=[length, width, height])
-#             length = .9*length
-#             width = .9*width
-#             height = .9*height
-
