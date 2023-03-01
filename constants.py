@@ -1,11 +1,21 @@
-from cmath import pi
+import numpy
+import math
 
-amplitude_BackLeg = pi/2
-frequency_BackLeg = 5
-phaseOffset_BackLeg = pi/2
+# Environment
+SIMULATION_STEPS = 1000
+# GRAVITY = -15
+GRAVITY = -9.8
+SLEEP_INCREMENT = 1 / 60
 
-amplitude_FrontLeg = pi/2
-frequency_FrontLeg = 10
-phaseOffset_FrontLeg = 0
+# Joints
 
-maxForce = 35
+MAX_FORCE = 10
+
+# Movements
+BACK_AMPLITUDE = math.pi / 4.0
+BACK_FREQUENCY = 10
+BACK_PHASE_OFFSET = 0
+FRONT_AMPLITUDE = math.pi / 4.0
+FRONT_FREQUENCY = 20
+FRONT_PHASE_OFFSET = numpy.pi
+SIN_DIVISOR = (SIMULATION_STEPS / 20 * math.pi)

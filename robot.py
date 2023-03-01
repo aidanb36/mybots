@@ -1,30 +1,25 @@
+from sensor import SENSOR
+from motor import MOTOR
 import pybullet as p
 import pyrosim.pyrosim as pyrosim
 from pyrosim.neuralNetwork import NEURAL_NETWORK
+import constants as c
 
-from sensor import SENSOR
-from motor import MOTOR
 
 class ROBOT:
-    def __init__(self):
-        self.robotId = p.loadURDF("body.urdf")
-        pyrosim.Prepare_To_Simulate(self.robotId)
-        self.Prepare_To_Sense()
-        self.Prepare_To_Act()
-        self.nn = NEURAL_NETWORK("brain.nndf")
 
-    def Prepare_To_Sense(self):
+    def PrepareToSense(self):
         self.sensors = {}
         for linkName in pyrosim.linkNamesToIndices:
             self.sensors[linkName] = SENSOR(linkName)
 
-    def Sense(self, timeStep):
-        self.timeStep = timeStep
-        for i in self.sensors:
-            self.sensor = self.sensors[i]
-            self.sensor.Get_Value(self.timeStep)
+        self.t = 0  # time step counter
 
-    def Prepare_To_Act(self):
+    def Sense(self):
+        for linkName in pyrosim.linkNamesToIndices:
+            self.sensors[linkName].Get_Values(self.t)
+
+    def PrepareToAct(self):
         self.motors = {}
         for jointName in pyrosim.jointNamesToIndices:
             self.motors[jointName] = MOTOR(jointName)
@@ -36,6 +31,19 @@ class ROBOT:
                 desiredAngle = self.nn.Get_Value_Of(neuronName)
                 self.motors[jointName].Set_Values(self.robotId, desiredAngle)
 
+        self.t += 1  # increment the time step counter
+
     def Think(self):
         self.nn.Update()
-        self.nn.Print()
+        # self.nn.Print()
+
+    def __init__(self, s=2, m=2):
+        # Initialize sensors and motors
+        self.motors = {}
+        self.robotId = p.loadURDF("body.urdf")  # creates robot
+
+        pyrosim.Prepare_To_Simulate(self.robotId)  # sets up sensors
+        self.PrepareToSense()
+        self.PrepareToAct()
+
+        self.nn = NEURAL_NETWORK("brain.nndf")

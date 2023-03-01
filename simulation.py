@@ -1,29 +1,34 @@
+import pybullet
+
+import constants as c
+
 import pybullet as p
+import time as t
 import pybullet_data
-import time
-import world
-import robot
+from world import WORLD
+from robot import ROBOT
 
 
 class SIMULATION:
     def __init__(self):
         self.physicsClient = p.connect(p.GUI)
-        p.setAdditionalSearchPath(pybullet_data.getDataPath())
-        p.setGravity(0, 0, -9.8)
+        p.configureDebugVisualizer(p.COV_ENABLE_GUI, 0)
+        p.setAdditionalSearchPath(pybullet_data.getDataPath())  # gets custom pybullet shapes for easier use
 
-        self.robot = robot.ROBOT()
-        self.world = world.WORLD()
+        p.setGravity(0, 0, c.GRAVITY)  # set gravity
 
+        self.world = WORLD()
+        self.robot = ROBOT()
 
-    def run(self):
-        for i in range(1000):
-            #print(i)
-            time.sleep(1 / 240)
+    def Run(self):
+        for i in range(c.SIMULATION_STEPS):
             p.stepSimulation()
-            self.robot.Sense(i)
-            self.robot.Think()
-            self.robot.Act()
+            ROBOT.Sense(self.robot)
+            ROBOT.Think(self.robot)
+            ROBOT.Act(self.robot)
 
+            t.sleep(c.SLEEP_INCREMENT)
 
-    def __del__(self):
-        p.disconnect()
+        # Destructor
+        def __del__():
+            p.disconnect()
