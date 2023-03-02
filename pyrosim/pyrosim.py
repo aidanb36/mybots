@@ -2,247 +2,243 @@ import pybullet as p
 
 from pyrosim.nndf import NNDF
 
-from pyrosim.linksdf  import LINK_SDF
+from pyrosim.linksdf import LINK_SDF
 
 from pyrosim.linkurdf import LINK_URDF
 
 from pyrosim.model import MODEL
 
-from pyrosim.sdf   import SDF
+from pyrosim.sdf import SDF
 
-from pyrosim.urdf  import URDF
+from pyrosim.urdf import URDF
 
 from pyrosim.joint import JOINT
 
-SDF_FILETYPE  = 0
+SDF_FILETYPE = 0
 
 URDF_FILETYPE = 1
 
-NNDF_FILETYPE   = 2
+NNDF_FILETYPE = 2
+
 
 # global availableLinkIndex
 
 # global linkNamesToIndices
 
 def End():
+   if filetype == SDF_FILETYPE:
 
-    if filetype == SDF_FILETYPE:
+       sdf.Save_End_Tag(f)
 
-        sdf.Save_End_Tag(f)
+   elif filetype == NNDF_FILETYPE:
 
-    elif filetype == NNDF_FILETYPE:
+       nndf.Save_End_Tag(f)
+   else:
+       urdf.Save_End_Tag(f)
 
-        nndf.Save_End_Tag(f)
-    else:
-        urdf.Save_End_Tag(f)
+   f.close()
 
-    f.close()
 
 def End_Model():
+   model.Save_End_Tag(f)
 
-    model.Save_End_Tag(f)
 
 def Get_Touch_Sensor_Value_For_Link(linkName):
+   touchValue = -1.0
 
-    touchValue = -1.0
+   desiredLinkIndex = linkNamesToIndices[linkName]
 
-    desiredLinkIndex = linkNamesToIndices[linkName]
+   pts = p.getContactPoints()
 
-    pts = p.getContactPoints()
+   for pt in pts:
 
-    for pt in pts:
+       linkIndex = pt[4]
 
-        linkIndex = pt[4]
+       if (linkIndex == desiredLinkIndex):
+           touchValue = 1.0
 
-        if ( linkIndex == desiredLinkIndex ):
+   return touchValue
 
-            touchValue = 1.0
-
-    return touchValue
 
 def Prepare_Link_Dictionary(bodyID):
+   global linkNamesToIndices
 
-    global linkNamesToIndices
+   linkNamesToIndices = {}
 
-    linkNamesToIndices = {}
+   for jointIndex in range(0, p.getNumJoints(bodyID)):
 
-    for jointIndex in range( 0 , p.getNumJoints(bodyID) ):
+       jointInfo = p.getJointInfo(bodyID, jointIndex)
 
-        jointInfo = p.getJointInfo( bodyID , jointIndex )
+       jointName = jointInfo[1]
 
-        jointName = jointInfo[1]
+       jointName = jointName.decode("utf-8")
 
-        jointName = jointName.decode("utf-8")
+       jointName = jointName.split("_")
 
-        jointName = jointName.split("_")
+       linkName = jointName[1]
 
-        linkName = jointName[1]
+       linkNamesToIndices[linkName] = jointIndex
 
-        linkNamesToIndices[linkName] = jointIndex
-
-        if jointIndex==0:
-
+       if jointIndex == 0:
            rootLinkName = jointName[0]
 
-           linkNamesToIndices[rootLinkName] = -1 
+           linkNamesToIndices[rootLinkName] = -1
+
 
 def Prepare_Joint_Dictionary(bodyID):
+   global jointNamesToIndices
 
-    global jointNamesToIndices
+   jointNamesToIndices = {}
 
-    jointNamesToIndices = {}
+   for jointIndex in range(0, p.getNumJoints(bodyID)):
+       jointInfo = p.getJointInfo(bodyID, jointIndex)
 
-    for jointIndex in range( 0 , p.getNumJoints(bodyID) ):
+       jointName = jointInfo[1].decode('UTF-8')
 
-        jointInfo = p.getJointInfo( bodyID , jointIndex )
+       jointNamesToIndices[jointName] = jointIndex
 
-        jointName = jointInfo[1]
-
-        jointNamesToIndices[jointName] = jointIndex
 
 def Prepare_To_Simulate(bodyID):
+   Prepare_Link_Dictionary(bodyID)
 
-    Prepare_Link_Dictionary(bodyID)
+   Prepare_Joint_Dictionary(bodyID)
 
-    Prepare_Joint_Dictionary(bodyID)
 
-def Send_Cube(name="default",pos=[0,0,0],size=[1,1,1]):
+def Send_Cube(name="default", pos=[0, 0, 0], size=[1, 1, 1]):
+   global availableLinkIndex
 
-    global availableLinkIndex
+   global links
 
-    global links
+   if filetype == SDF_FILETYPE:
 
-    if filetype == SDF_FILETYPE:
+       Start_Model(name, pos)
 
-        Start_Model(name,pos)
+       link = LINK_SDF(name, pos, size)
 
-        link = LINK_SDF(name,pos,size)
+       links.append(link)
+   else:
+       link = LINK_URDF(name, pos, size)
 
-        links.append(link)
-    else:
-        link = LINK_URDF(name,pos,size)
+       links.append(link)
 
-        links.append(link)
+   link.Save(f)
 
-    link.Save(f)
+   if filetype == SDF_FILETYPE:
+       End_Model()
 
-    if filetype == SDF_FILETYPE:
+   linkNamesToIndices[name] = availableLinkIndex
 
-        End_Model()
+   availableLinkIndex = availableLinkIndex + 1
 
-    linkNamesToIndices[name] = availableLinkIndex
 
-    availableLinkIndex = availableLinkIndex + 1
+def Send_Joint(name, parent, child, type, position):
+   joint = JOINT(name, parent, child, type, position)
 
-def Send_Joint(name,parent,child,type,position):
+   joint.Save(f)
 
-    joint = JOINT(name,parent,child,type,position)
 
-    joint.Save(f)
+def Send_Motor_Neuron(name, jointName):
+   f.write('    <neuron name = "' + str(name) + '" type = "motor"  jointName = "' + jointName + '" />\n')
 
-def Send_Motor_Neuron(name,jointName):
 
-    f.write('    <neuron name = "' + str(name) + '" type = "motor"  jointName = "' + jointName + '" />\n')
+def Send_Sensor_Neuron(name, linkName):
+   f.write('    <neuron name = "' + str(name) + '" type = "sensor" linkName = "' + linkName + '" />\n')
 
-def Send_Sensor_Neuron(name,linkName):
 
-    f.write('    <neuron name = "' + str(name) + '" type = "sensor" linkName = "' + linkName + '" />\n')
+def Send_Synapse(sourceNeuronName, targetNeuronName, weight):
+   f.write('    <synapse sourceNeuronName = "' + str(sourceNeuronName) + '" targetNeuronName = "' + str(
+       targetNeuronName) + '" weight = "' + str(weight) + '" />\n')
 
-def Send_Synapse( sourceNeuronName , targetNeuronName , weight ):
 
-    f.write('    <synapse sourceNeuronName = "' + str(sourceNeuronName) + '" targetNeuronName = "' + str(targetNeuronName) + '" weight = "' + str(weight) + '" />\n')
+def Set_Motor_For_Joint(bodyIndex, jointName, controlMode, targetPosition, maxForce):
+   p.setJointMotorControl2(
 
- 
-def Set_Motor_For_Joint(bodyIndex,jointName,controlMode,targetPosition,maxForce):
+       bodyIndex=bodyIndex,
 
-    p.setJointMotorControl2(
+       jointIndex=jointNamesToIndices[jointName],
 
-        bodyIndex      = bodyIndex,
+       controlMode=controlMode,
 
-        jointIndex     = jointNamesToIndices[jointName],
+       targetPosition=targetPosition,
 
-        controlMode    = controlMode,
+       force=maxForce)
 
-        targetPosition = targetPosition,
-
-        force          = maxForce)
 
 def Start_NeuralNetwork(filename):
+   global filetype
 
-    global filetype
+   filetype = NNDF_FILETYPE
 
-    filetype = NNDF_FILETYPE
+   global f
 
-    global f
+   f = open(filename, "w")
 
-    f = open(filename,"w")
+   global nndf
 
-    global nndf
+   nndf = NNDF()
 
-    nndf = NNDF()
+   nndf.Save_Start_Tag(f)
 
-    nndf.Save_Start_Tag(f)
 
 def Start_SDF(filename):
+   global availableLinkIndex
 
-    global availableLinkIndex
+   availableLinkIndex = -1
 
-    availableLinkIndex = -1
+   global linkNamesToIndices
 
-    global linkNamesToIndices
+   linkNamesToIndices = {}
 
-    linkNamesToIndices = {}
+   global filetype
 
-    global filetype
+   filetype = SDF_FILETYPE
 
-    filetype = SDF_FILETYPE
+   global f
 
-    global f
- 
-    f = open(filename,"w")
+   f = open(filename, "w")
 
-    global sdf
+   global sdf
 
-    sdf = SDF()
+   sdf = SDF()
 
-    sdf.Save_Start_Tag(f)
+   sdf.Save_Start_Tag(f)
 
-    global links
+   global links
 
-    links = []
+   links = []
+
 
 def Start_URDF(filename):
+   global availableLinkIndex
 
-    global availableLinkIndex
+   availableLinkIndex = -1
 
-    availableLinkIndex = -1
+   global linkNamesToIndices
 
-    global linkNamesToIndices
+   linkNamesToIndices = {}
 
-    linkNamesToIndices = {}
+   global filetype
 
-    global filetype
+   filetype = URDF_FILETYPE
 
-    filetype = URDF_FILETYPE
+   global f
 
-    global f
+   f = open(filename, "w")
 
-    f = open(filename,"w")
+   global urdf
 
-    global urdf 
+   urdf = URDF()
 
-    urdf = URDF()
+   urdf.Save_Start_Tag(f)
 
-    urdf.Save_Start_Tag(f)
+   global links
 
-    global links
+   links = []
 
-    links = []
 
-def Start_Model(modelName,pos):
+def Start_Model(modelName, pos):
+   global model
 
-    global model 
+   model = MODEL(modelName, pos)
 
-    model = MODEL(modelName,pos)
-
-    model.Save_Start_Tag(f)
+   model.Save_Start_Tag(f)
