@@ -2,7 +2,7 @@ import numpy
 import math
 
 # Environment
-SIMULATION_STEPS = 400
+SIMULATION_STEPS = 1000
 # GRAVITY = -15
 GRAVITY = -9.8
 SLEEP_INCREMENT = 1 / 60
@@ -19,11 +19,11 @@ FRONT_AMPLITUDE = math.pi / 4.0
 FRONT_FREQUENCY = 20
 FRONT_PHASE_OFFSET = numpy.pi
 SIN_DIVISOR = (SIMULATION_STEPS / 20 * math.pi)
-numberOfGenerations = 10
+numberOfGenerations = 100
 gravity_x = 0
 gravity_y = 0
 gravity_z = -9.8
 motorMaxForce = 25
 timeStepDirect = 0
 timeStepGUI = 1/60
-simulationSize = 1000
+simulationSize = 100

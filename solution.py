@@ -10,7 +10,7 @@ height = 1
 x = 0
 y = 0
 z = 1 / 2
-class SOLUTION():
+class SOLUTION:
 
     def __init__(self):
 
@@ -25,7 +25,7 @@ class SOLUTION():
         os.system("python simulate.py " + guiOrDirect)
         fitness = open("fitness.txt", "r")
         print(fitness.read())
-        self.fitness = float(fitness.read())
+        self.fitness = float(fitness.readline())
         fitness.close()
 
     def Mutate(self):
@@ -36,15 +36,7 @@ class SOLUTION():
     def Create_World(self):
 
         pyrosim.Start_SDF("world.sdf")
-        length = 1
-        width = 1
-        height = 1
-        x=-3
-        y=3
-        z=0.5
-
-        pyrosim.Send_Cube(name="Box", pos=[x,y,z] , size=[length, width, height])
-
+        pyrosim.Send_Cube(name="Box", pos=[x - 5, y + 5, z], size=[length, width, height])
         pyrosim.End()
 
     def Create_Brain(self):

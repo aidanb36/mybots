@@ -37,7 +37,7 @@ class ROBOT:
         self.nn.Update()
         # self.nn.Print()
 
-    def __init__(self, s=2, m=2):
+    def __init__(self):
         # Initialize sensors and motors
         self.motors = {}
         self.robotId = p.loadURDF("body.urdf")  # creates robot
