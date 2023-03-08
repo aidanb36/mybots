@@ -5,7 +5,7 @@ import math
 SIMULATION_STEPS = 1000
 # GRAVITY = -15
 GRAVITY = -9.8
-SLEEP_INCREMENT = 1 / 60
+SLEEP_INCREMENT = 1 / 240
 
 # Joints
 
@@ -26,4 +26,4 @@ gravity_z = -9.8
 motorMaxForce = 25
 timeStepDirect = 0
 timeStepGUI = 1/60
-simulationSize = 100
+simulationSize = 1000

@@ -22,10 +22,9 @@ class SOLUTION:
         self.Create_World()
         self.Create_Body()
         self.Create_Brain()
-        os.system("python simulate.py " + guiOrDirect)
+        os.system("python3 simulate.py " + guiOrDirect)
         fitness = open("fitness.txt", "r")
-        print(fitness.read())
-        self.fitness = fitness.readline()
+        self.fitness = float(fitness.read())
         fitness.close()
 
     def Mutate(self):
@@ -39,7 +38,7 @@ class SOLUTION:
         pyrosim.Send_Cube(name="Box", pos=[x - 5, y + 5, z], size=[length, width, height])
         pyrosim.End()
 
-    def Create_Brain(self):
+    def Create_Body(self):
         pyrosim.Start_URDF("body.urdf")
         pyrosim.Send_Cube(name="Torso", pos=[1.5, 0, 1.5], size=[length, width, height])
         pyrosim.Send_Joint(name="Torso_BackLeg", parent="Torso", child="BackLeg", type="revolute", position=[1, 0, 1])
@@ -48,7 +47,7 @@ class SOLUTION:
         pyrosim.Send_Cube(name="FrontLeg", pos=[.5, 0, -.5], size=[length, width, height])
         pyrosim.End()
 
-    def Create_Body(self):
+    def Create_Brain(self):
         pyrosim.Start_NeuralNetwork("brain.nndf")
         # Sensor Neurons
         pyrosim.Send_Sensor_Neuron(name=0, linkName="Torso")
@@ -59,8 +58,9 @@ class SOLUTION:
         pyrosim.Send_Motor_Neuron(name=3, jointName="Torso_BackLeg")
         pyrosim.Send_Motor_Neuron(name=4, jointName="Torso_FrontLeg")
 
-        for currentRow in range(len(self.weights)):
-            for currentColumn in range(len(self.weights[0])):
-                pyrosim.Send_Synapse(sourceNeuronName = currentRow , targetNeuronName = currentColumn+3 , weight = self.weights[currentRow][currentColumn] )
+        for currentRow in range(3):
+            for currentColumn in range(2):
+                pyrosim.Send_Synapse(
+                    sourceNeuronName=currentRow, targetNeuronName=currentColumn+3, weight=self.weights[currentRow][currentColumn])
 
         pyrosim.End()

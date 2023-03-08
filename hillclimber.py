@@ -1,4 +1,4 @@
-from solution import SOLUTION
+from solution import *
 import constants as c
 import copy
 
@@ -41,7 +41,7 @@ class HILL_CLIMBER:
     def Print(self):
 
         print("Parent:", self.parent.fitness, "Child:", self.child.fitness)
-
+        pass
     def Show_Best(self):
 
         self.parent.Evaluate("GUI")
