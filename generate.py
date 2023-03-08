@@ -1,5 +1,6 @@
 import pyrosim.pyrosim as pyrosim
 import random
+
 length = 1
 width = 1
 height = 1
@@ -9,7 +10,13 @@ y = 0
 z = 1 / 2
 
 
-def Create_World():
+def main():
+    Generate_World()
+    Generate_Body()
+    Generate_Brain()
+
+
+def Generate_World():
     pyrosim.Start_SDF("world.sdf")
     pyrosim.Send_Cube(name="Box", pos=[x - 5, y + 5, z], size=[length, width, height])
     pyrosim.End()
@@ -45,7 +52,6 @@ def Generate_Brain():
         for motorneuron in range(3, 5):
             pyrosim.Send_Synapse(sourceNeuronName=sensorneuron, targetNeuronName=motorneuron,
                                  weight=random.randrange(-1, 1))
-
 
     pyrosim.End()
 

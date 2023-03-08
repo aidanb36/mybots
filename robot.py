@@ -47,3 +47,13 @@ class ROBOT:
         self.PrepareToAct()
 
         self.nn = NEURAL_NETWORK("brain.nndf")
+
+
+    def Get_Fitness(self):
+        stateOfLinkZero = p.getLinkState(self.robotId, 0)
+        positionOfLinkZero = stateOfLinkZero[0]
+        xCoordinateOfLinkZero = positionOfLinkZero[0]
+        fitness = open("fitness.txt", "w")
+        fitness.write(str(xCoordinateOfLinkZero))
+        fitness.close()
+        exit()
