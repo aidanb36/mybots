@@ -25,7 +25,7 @@ class SOLUTION:
         os.system("python simulate.py " + guiOrDirect)
         fitness = open("fitness.txt", "r")
         print(fitness.read())
-        self.fitness = float(fitness.readline())
+        self.fitness = fitness.readline()
         fitness.close()
 
     def Mutate(self):
